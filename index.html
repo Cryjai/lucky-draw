@@ -941,7 +941,29 @@
         .filter(s => s.length > 0);
       wheel.options = options;
       saveToLocalStorage();
-      renderOptionsEditor();
+        // Update option list and count without touching textarea
+        const list = document.getElementById("optionsList");
+        const countLabel = document.getElementById("optionCountLabel");
+        list.innerHTML = "";
+        if (!wheel.options.length) {
+              list.innerHTML = '<div class="no-options">暫時冇選項，打啲嘢落去上面先啦。</div>';
+            } else {
+              wheel.options.forEach((opt, index) => {
+                      const row = document.createElement("div");
+                      row.className = "option-item";
+                      const idx = document.createElement("div");
+                      idx.className = "option-index";
+                      idx.textContent = index + 1;
+                      const label = document.createElement("div");
+                      label.className = "option-label";
+                      label.textContent = opt;
+                      row.appendChild(idx);
+                      row.appendChild(label);
+                      list.appendChild(row);
+                    });
+            }
+        countLabel.textContent = wheel.options.length + " 項";
+        toggleSpinButton(wheel.options.length > 0);
       renderWheelCanvas();
     }
 
