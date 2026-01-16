@@ -1007,30 +1007,45 @@
 
     // ===== Init =====
 
-    function init() {
-      loadFromLocalStorage();
-      renderWheelList();
-      renderActiveWheel();
-
-      document.getElementById("addWheelBtn").addEventListener("click", addWheel);
-      document.getElementById("optionsInput").addEventListener("input", syncOptionsFromTextarea);
-      document.getElementById("spinBtn").addEventListener("click", () => {
-        if (!document.getElementById("spinBtn").classList.contains("disabled")) {
-          spinWheel();
-        } else {
-          const wheel = getActiveWheel();
-          if (!wheel) {
-            showToast("先整個 wheel 出嚟先啦。");
-          } else {
-            showToast("個 wheel 冇選項，你叫 SPIN 點樣幫你決定人生。");
-          }
-        }
-      });
-
-      window.addEventListener("resize", () => {
-        renderWheelCanvas();
-      });
+function init() {
+  loadFromLocalStorage();
+  renderWheelList();
+  renderActiveWheel();
+  document.getElementById("addWheelBtn").addEventListener("click", addWheel);
+  document.getElementById("optionsInput").addEventListener("input", syncOptionsFromTextarea);
+  document.getElementById("spinBtn").addEventListener("click", () => {
+    if (!document.getElementById("spinBtn").classList.contains("disabled")) {
+      spinWheel();
+    } else {
+      const wheel = getActiveWheel();
+      if (!wheel) {
+        showToast("先整個 wheel 出嚟先啦。");
+      } else {
+        showToast("個 wheel 冇選項，你叫 SPIN 點樣幫你決定人生。");
+      }
     }
+  });
+
+  // 🔽 
+  (function() {
+    const optionsInput = document.getElementById('optionsInput');
+    if (!optionsInput) return;
+
+    function suppressEnterPropagation(e) {
+      if (e.key === 'Enter') {
+        e.stopPropagation();
+      }
+    }
+
+    optionsInput.addEventListener('keydown', suppressEnterPropagation);
+    optionsInput.addEventListener('keypress', suppressEnterPropagation);
+  })();
+  // 
+  window.addEventListener("resize", () => {
+    renderWheelCanvas();
+  });
+}
+
 
     window.addEventListener("DOMContentLoaded", init);
   </script>
