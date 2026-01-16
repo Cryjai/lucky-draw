@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cyberpunk Lucky Draw - Acry</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --bg: #050814;
+      --panel: #0b1020;
+      --accent: #48e0ff;
+      --accent-2: #b15cff;
+      --danger: #ff4b81;
+      --text: #f5f7ff;
+      --muted: #8b92b5;
+      --border-glow: 0 0 15px rgba(72, 224, 255, 0.6);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html, body {
+      margin: 0;
+      padding: 0;
+      height: 100%;
+      background: radial-gradient(circle at top, #111633 0, #050814 55%, #02030a 100%);
+      color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      overflow: hidden;
+    }
+
+    body {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .app-container {
+      flex: 1;
+      display: grid;
+      grid-template-columns: 260px minmax(0, 1.2fr) minmax(0, 1.1fr);
+      gap: 16px;
+      padding: 16px 16px 60px;
+    }
+
+    .panel {
+      background: linear-gradient(145deg, rgba(22, 28, 60, 0.96), rgba(8, 12, 30, 0.98));
+      border-radius: var(--radius);
+      border: 1px solid rgba(72, 224, 255, 0.25);
+      box-shadow: var(--border-glow);
+      padding: 12px 14px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .panel::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at top left, rgba(177, 92, 255, 0.18), transparent 55%);
+      pointer-events: none;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .panel-title {
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--muted);
+    }
+
+    .panel-tag {
+      font-size: 11px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(72, 224, 255, 0.5);
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    /* Left: wheel list */
+
+    .wheel-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+      height: calc(100% - 12px);
+    }
+
+    .wheel-items {
+      flex: 1;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin-top: 4px;
+    }
+
+    .wheel-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 9px;
+      margin-bottom: 6px;
+      background: rgba(8, 13, 35, 0.96);
+      border-radius: 10px;
+      border: 1px solid transparent;
+      cursor: pointer;
+      transition: 0.18s ease all;
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .wheel-item.active {
+      border-color: rgba(72, 224, 255, 0.8);
+      box-shadow: 0 0 10px rgba(72, 224, 255, 0.4);
+      color: var(--accent);
+      background: radial-gradient(circle at top, rgba(72, 224, 255, 0.15), rgba(8, 13, 35, 0.96));
+    }
+
+    .wheel-name {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .wheel-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-left: 6px;
+    }
+
+    .icon-button {
+      background: transparent;
+      border: none;
+      color: var(--muted);
+      cursor: pointer;
+      padding: 3px 5px;
+      border-radius: 6px;
+      font-size: 11px;
+      transition: 0.15s ease all;
+    }
+
+    .icon-button:hover {
+      background: rgba(72, 224, 255, 0.12);
+      color: var(--accent);
+    }
+
+    .btn {
+      border: none;
+      border-radius: 999px;
+      padding: 7px 11px;
+      font-size: 12px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: linear-gradient(135deg, rgba(72, 224, 255, 0.14), rgba(177, 92, 255, 0.2));
+      color: var(--accent);
+      border: 1px solid rgba(72, 224, 255, 0.4);
+      box-shadow: 0 0 12px rgba(72, 224, 255, 0.5);
+      transition: 0.16s ease all;
+    }
+
+    .btn:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 0 18px rgba(72, 224, 255, 0.9);
+      background: linear-gradient(135deg, rgba(72, 224, 255, 0.22), rgba(177, 92, 255, 0.4));
+    }
+
+    .btn-secondary {
+      background: rgba(10, 16, 40, 0.9);
+      border-color: rgba(177, 92, 255, 0.5);
+      color: var(--accent-2);
+      box-shadow: 0 0 10px rgba(177, 92, 255, 0.55);
+    }
+
+    .btn-secondary:hover {
+      background: rgba(18, 24, 60, 0.98);
+      box-shadow: 0 0 18px rgba(177, 92, 255, 0.9);
+    }
+
+    .wheel-empty-tip {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+
+    /* Middle: wheel canvas + result + spin */
+
+    .wheel-panel {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+      position: relative;
+      z-index: 1;
+      height: calc(100% - 12px);
+    }
+
+    .canvas-wrapper {
+      position: relative;
+      width: 100%;
+      max-width: 360px;
+      aspect-ratio: 1 / 1;
+      margin-top: 4px;
+    }
+
+    #wheelCanvas {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, #151b3f 0, #06081c 55%, #02030a 100%);
+      box-shadow:
+        0 0 0 3px rgba(15, 20, 40, 0.9),
+        0 0 40px rgba(72, 224, 255, 0.4),
+        0 0 70px rgba(177, 92, 255, 0.35);
+    }
+
+    .pointer {
+      position: absolute;
+      top: -6px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 14px solid transparent;
+      border-right: 14px solid transparent;
+      border-bottom: 22px solid var(--accent);
+      filter: drop-shadow(0 0 7px rgba(72, 224, 255, 0.9));
+    }
+
+    .spin-btn {
+      margin-top: 4px;
+      padding: 13px 40px;
+      font-size: 16px;
+      letter-spacing: 0.25em;
+      text-indent: 0.25em;
+      text-transform: uppercase;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      background: conic-gradient(from 0deg, #48e0ff, #b15cff, #ff4b81, #48e0ff);
+      color: #050814;
+      box-shadow:
+        0 0 18px rgba(72, 224, 255, 0.7),
+        0 0 40px rgba(177, 92, 255, 0.7);
+      position: relative;
+      overflow: hidden;
+      transition: 0.18s ease transform, 0.18s ease box-shadow, 0.18s ease filter;
+    }
+
+    .spin-btn::before {
+      content: "";
+      position: absolute;
+      inset: 2px;
+      border-radius: inherit;
+      background: radial-gradient(circle at top, #101633 0, #050814 60%);
+    }
+
+    .spin-btn span {
+      position: relative;
+      z-index: 1;
+      color: var(--accent);
+      font-weight: 600;
+    }
+
+    .spin-btn:hover {
+      transform: translateY(-2px) scale(1.02);
+      filter: brightness(1.1);
+      box-shadow:
+        0 0 30px rgba(72, 224, 255, 1),
+        0 0 55px rgba(177, 92, 255, 1);
+    }
+
+    .spin-btn:active:not(.disabled) {
+      transform: translateY(0) scale(0.98);
+      box-shadow: 0 0 16px rgba(72, 224, 255, 0.7);
+    }
+
+    .spin-btn.disabled {
+      cursor: not-allowed;
+      opacity: 0.6;
+      box-shadow: 0 0 6px rgba(120, 120, 120, 0.4);
+    }
+
+    .result-text {
+      margin-top: 8px;
+      font-size: 14px;
+      color: var(--muted);
+      min-height: 20px;
+      text-align: center;
+    }
+
+    .result-highlight {
+      font-size: 18px;
+      color: var(--accent);
+      font-weight: 600;
+      text-shadow: 0 0 10px rgba(72, 224, 255, 0.9);
+    }
+
+    /* Right: options editor */
+
+    .options-panel-content {
+      position: relative;
+      z-index: 1;
+      height: calc(100% - 12px);
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .options-input-label {
+      font-size: 12px;
+      color: var(--muted);
+      margin-bottom: 4px;
+    }
+
+    #optionsInput {
+      width: 100%;
+      min-height: 120px;
+      max-height: 180px;
+      resize: vertical;
+      background: rgba(3, 6, 18, 0.9);
+      border-radius: 10px;
+      border: 1px solid rgba(72, 224, 255, 0.35);
+      padding: 8px 9px;
+      color: var(--text);
+      font-family: inherit;
+      font-size: 13px;
+      line-height: 1.4;
+      outline: none;
+      box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.7);
+    }
+
+    #optionsInput::placeholder {
+      color: rgba(139, 146, 181, 0.7);
+    }
+
+    #optionsInput:focus {
+      border-color: rgba(177, 92, 255, 0.9);
+      box-shadow:
+        0 0 0 1px rgba(177, 92, 255, 0.7),
+        0 0 20px rgba(72, 224, 255, 0.4);
+    }
+
+    .options-hint {
+      font-size: 11px;
+      color: var(--muted);
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 4px;
+    }
+
+    .options-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 6px 4px 0 0;
+      border-radius: 8px;
+      border-top: 1px dashed rgba(72, 224, 255, 0.4);
+      margin-top: 4px;
+    }
+
+    .option-item {
+      font-size: 13px;
+      color: var(--text);
+      padding: 6px 4px;
+      border-bottom: 1px dashed rgba(30, 40, 80, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .option-label {
+      flex: 1;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .option-index {
+      font-size: 11px;
+      color: var(--muted);
+      margin-right: 4px;
+      min-width: 20px;
+      text-align: right;
+    }
+
+    .no-options {
+      font-size: 12px;
+      color: var(--muted);
+      margin-top: 4px;
+    }
+
+    /* Toast / message */
+
+    .toast {
+      position: fixed;
+      top: 16px;
+      right: 16px;
+      background: rgba(10, 16, 40, 0.98);
+      border: 1px solid rgba(255, 75, 129, 0.8);
+      color: var(--text);
+      padding: 8px 11px;
+      border-radius: 10px;
+      font-size: 12px;
+      box-shadow: 0 0 18px rgba(255, 75, 129, 0.8);
+      display: none;
+      z-index: 99;
+    }
+
+    .toast.show {
+      display: block;
+      animation: fadeInOut 2.4s ease forwards;
+    }
+
+    @keyframes fadeInOut {
+      0% { opacity: 0; transform: translateY(-8px); }
+      10% { opacity: 1; transform: translateY(0); }
+      80% { opacity: 1; transform: translateY(0); }
+      100% { opacity: 0; transform: translateY(-8px); }
+    }
+
+    /* Footer */
+
+    .footer {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 44px;
+      background: linear-gradient(90deg, rgba(5, 8, 20, 0.98), rgba(10, 12, 30, 0.96));
+      border-top: 1px solid rgba(72, 224, 255, 0.35);
+      box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 12px;
+      color: var(--muted);
+      z-index: 10;
+    }
+
+    .footer-left {
+      font-weight: 500;
+      color: var(--accent-2);
+    }
+
+    .footer-right a {
+      color: var(--accent);
+      text-decoration: none;
+      margin-left: 14px;
+      position: relative;
+    }
+
+    .footer-right a::after {
+      content: "";
+      position: absolute;
+      left: 0;
+      bottom: -2px;
+      width: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--accent), var(--accent-2));
+      transition: 0.18s ease width;
+    }
+
+    .footer-right a:hover::after {
+      width: 100%;
+    }
+
+    /* Scrollbar */
+
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: rgba(5, 8, 20, 0.95);
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: linear-gradient(180deg, rgba(72, 224, 255, 0.9), rgba(177, 92, 255, 0.9));
+      border-radius: 999px;
+    }
+
+    @media (max-width: 980px) {
+      body {
+        overflow: auto;
+      }
+      .app-container {
+        grid-template-columns: 1fr;
+        grid-auto-rows: auto;
+        height: auto;
+        padding-bottom: 72px;
+      }
+      .wheel-panel {
+        order: -1;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="app-container">
+    <!-- Left: Wheel list -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Wheels</div>
+        <button class="btn" id="addWheelBtn">
+          <span>＋ NEW</span>
+        </button>
+      </div>
+      <div class="wheel-list">
+        <div class="wheel-items" id="wheelList"></div>
+        <div class="wheel-empty-tip">
+          點樣用：<br>
+          1. 左邊新增一個 wheel<br>
+          2. 右邊打一行一個選項<br>
+          3. 中間撳 SPIN 幫你決定命運 🤖
+        </div>
+      </div>
+    </div>
+
+    <!-- Middle: Canvas + Spin -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Lucky Draw</div>
+        <div class="panel-tag" id="currentWheelNameTag">NO WHEEL</div>
+      </div>
+      <div class="wheel-panel">
+        <div class="canvas-wrapper">
+          <canvas id="wheelCanvas" width="400" height="400"></canvas>
+          <div class="pointer"></div>
+        </div>
+        <button class="spin-btn disabled" id="spinBtn">
+          <span>SPIN</span>
+        </button>
+        <div class="result-text" id="resultText">
+          等你加完選項先，可以開始出賣你嘅命運。
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Options editor -->
+    <div class="panel">
+      <div class="panel-header">
+        <div class="panel-title">Options</div>
+        <div class="panel-tag">EDITOR</div>
+      </div>
+      <div class="options-panel-content">
+        <div>
+          <div class="options-input-label">
+            每行 = 一個選項（Enter 換行）
+          </div>
+          <textarea id="optionsInput" placeholder="例如：&#10;吃火鍋&#10;做 Past Paper&#10;M2 刷一套&#10;瞓覺（慎重）"></textarea>
+          <div class="options-hint">
+            <span>輸入會自動同步到輪盤。</span>
+            <span id="optionCountLabel">0 項</span>
+          </div>
+        </div>
+        <div class="options-list" id="optionsList"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="footer">
+    <div class="footer-left">Made by Acry CEO</div>
+    <div class="footer-right">
+      <a href="https://github.com/Cryjai" target="_blank" rel="noopener noreferrer">GitHub</a>
+      <a href="https://cryjai.github.io/Acry/" target="_blank" rel="noopener noreferrer">Personal Site</a>
+    </div>
+  </div>
+
+  <script>
+    // ===== Utilities =====
+
+    function getSecureRandom() {
+      // 0 <= x < 1 using crypto.getRandomValues()[web:17]
+      const array = new Uint32Array(1);
+      window.crypto.getRandomValues(array);
+      // Divide by 2^32 to normalize[web:17]
+      return array[0] / 4294967296;
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.remove("show");
+      void toast.offsetWidth;
+      toast.classList.add("show");
+    }
+
+    // ===== Data model & localStorage =====
+
+    const STORAGE_KEY = "acryLuckyWheels_v1";
+
+    let wheels = [];
+    let activeWheelId = null;
+    let isSpinning = false;
+    let currentAngle = 0;
+
+    function saveToLocalStorage() {
+      const payload = {
+        wheels,
+        activeWheelId
+      };
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(payload)); // [web:21]
+    }
+
+    function loadFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY); // [web:21]
+        if (!raw) {
+          // Create a default wheel
+          const id = "wheel-" + Date.now();
+          wheels = [{
+            id,
+            name: "Default Wheel",
+            options: ["做 Econ Past Paper", "做 M2", "做中史 MC", "寫英文 essay"]
+          }];
+          activeWheelId = id;
+          saveToLocalStorage();
+          return;
+        }
+        const data = JSON.parse(raw);
+        if (Array.isArray(data.wheels)) {
+          wheels = data.wheels;
+          activeWheelId = data.activeWheelId || (wheels[0] && wheels[0].id) || null;
+        }
+      } catch (e) {
+        console.error("Failed to load localStorage", e);
+        wheels = [];
+        activeWheelId = null;
+      }
+    }
+
+    // ===== Wheel management =====
+
+    function addWheel() {
+      const name = prompt("新 wheel 名稱？", "New Wheel");
+      if (!name) return;
+      const id = "wheel-" + Date.now() + "-" + Math.floor(getSecureRandom() * 100000);
+      wheels.push({
+        id,
+        name: name.trim() || "Untitled Wheel",
+        options: []
+      });
+      activeWheelId = id;
+      saveToLocalStorage();
+      renderWheelList();
+      renderActiveWheel();
+    }
+
+    function renameWheel(id) {
+      const wheel = wheels.find(w => w.id === id);
+      if (!wheel) return;
+      const newName = prompt("改名：", wheel.name);
+      if (!newName) return;
+      wheel.name = newName.trim() || wheel.name;
+      saveToLocalStorage();
+      renderWheelList();
+      renderActiveWheelNameTag();
+    }
+
+    function deleteWheel(id) {
+      if (!confirm("確定刪除呢個 wheel？")) return;
+      const index = wheels.findIndex(w => w.id === id);
+      if (index === -1) return;
+      wheels.splice(index, 1);
+      if (!wheels.length) {
+        activeWheelId = null;
+      } else if (activeWheelId === id) {
+        activeWheelId = wheels[0].id;
+      }
+      saveToLocalStorage();
+      renderWheelList();
+      renderActiveWheel();
+    }
+
+    function switchWheel(id) {
+      if (activeWheelId === id) return;
+      activeWheelId = id;
+      saveToLocalStorage();
+      renderWheelList();
+      renderActiveWheel();
+    }
+
+    // ===== Rendering: wheel list =====
+
+    function renderWheelList() {
+      const container = document.getElementById("wheelList");
+      container.innerHTML = "";
+      wheels.forEach(w => {
+        const div = document.createElement("div");
+        div.className = "wheel-item" + (w.id === activeWheelId ? " active" : "");
+        div.addEventListener("click", () => switchWheel(w.id));
+
+        const nameSpan = document.createElement("div");
+        nameSpan.className = "wheel-name";
+        nameSpan.textContent = w.name;
+
+        const actions = document.createElement("div");
+        actions.className = "wheel-actions";
+
+        const renameBtn = document.createElement("button");
+        renameBtn.className = "icon-button";
+        renameBtn.textContent = "✎";
+        renameBtn.title = "改名";
+        renameBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          renameWheel(w.id);
+        });
+
+        const deleteBtn = document.createElement("button");
+        deleteBtn.className = "icon-button";
+        deleteBtn.textContent = "✕";
+        deleteBtn.title = "刪除";
+        deleteBtn.addEventListener("click", (e) => {
+          e.stopPropagation();
+          deleteWheel(w.id);
+        });
+
+        actions.appendChild(renameBtn);
+        actions.appendChild(deleteBtn);
+        div.appendChild(nameSpan);
+        div.appendChild(actions);
+        container.appendChild(div);
+      });
+    }
+
+    // ===== Rendering: active wheel / options / canvas =====
+
+    function getActiveWheel() {
+      return wheels.find(w => w.id === activeWheelId) || null;
+    }
+
+    function renderActiveWheelNameTag() {
+      const tag = document.getElementById("currentWheelNameTag");
+      const wheel = getActiveWheel();
+      if (!wheel) {
+        tag.textContent = "NO WHEEL";
+      } else {
+        tag.textContent = wheel.name;
+      }
+    }
+
+    function renderOptionsEditor() {
+      const textarea = document.getElementById("optionsInput");
+      const list = document.getElementById("optionsList");
+      const countLabel = document.getElementById("optionCountLabel");
+      const wheel = getActiveWheel();
+
+      if (!wheel) {
+        textarea.value = "";
+        textarea.disabled = true;
+        list.innerHTML = '<div class="no-options">請先左邊新增一個 wheel。</div>';
+        countLabel.textContent = "0 項";
+        toggleSpinButton(false);
+        return;
+      }
+
+      textarea.disabled = false;
+      textarea.value = wheel.options.join("\n");
+      list.innerHTML = "";
+
+      if (!wheel.options.length) {
+        list.innerHTML = '<div class="no-options">暫時冇選項，打啲嘢落去上面先啦。</div>';
+      } else {
+        wheel.options.forEach((opt, index) => {
+          const row = document.createElement("div");
+          row.className = "option-item";
+
+          const idx = document.createElement("div");
+          idx.className = "option-index";
+          idx.textContent = index + 1;
+
+          const label = document.createElement("div");
+          label.className = "option-label";
+          label.textContent = opt;
+
+          row.appendChild(idx);
+          row.appendChild(label);
+          list.appendChild(row);
+        });
+      }
+
+      countLabel.textContent = wheel.options.length + " 項";
+      toggleSpinButton(wheel.options.length > 0);
+    }
+
+    function renderWheelCanvas() {
+      const canvas = document.getElementById("wheelCanvas");
+      const ctx = canvas.getContext("2d");
+      const wheel = getActiveWheel();
+
+      const width = canvas.width;
+      const height = canvas.height;
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const radius = Math.min(width, height) / 2 - 10;
+
+      ctx.clearRect(0, 0, width, height);
+
+      ctx.save();
+      ctx.translate(centerX, centerY);
+      ctx.rotate(currentAngle);
+
+      const options = wheel ? wheel.options : [];
+      const n = options.length;
+
+      if (!n) {
+        // draw placeholder circle
+        ctx.beginPath();
+        ctx.arc(0, 0, radius, 0, Math.PI * 2);
+        ctx.fillStyle = "#131938";
+        ctx.fill();
+
+        ctx.strokeStyle = "rgba(72, 224, 255, 0.8)";
+        ctx.lineWidth = 3;
+        ctx.setLineDash([8, 6]);
+        ctx.stroke();
+
+        ctx.setLineDash([]);
+        ctx.fillStyle = "rgba(139,146,181,0.85)";
+        ctx.font = "bold 16px system-ui";
+        ctx.textAlign = "center";
+        ctx.fillText("Add options to spin", 0, 5);
+        ctx.restore();
+        return;
+      }
+
+      const anglePer = (Math.PI * 2) / n;
+
+      // draw segments
+      for (let i = 0; i < n; i++) {
+        const startAngle = i * anglePer;
+        const endAngle = startAngle + anglePer;
+        const gradient = ctx.createLinearGradient(0, -radius, 0, radius);
+        const colorShift = i / n;
+        const c1 = "hsla(" + (190 + colorShift * 60) + ", 90%, 60%, 0.95)";
+        const c2 = "hsla(" + (280 + colorShift * 40) + ", 95%, 55%, 0.95)";
+        gradient.addColorStop(0, c1);
+        gradient.addColorStop(1, c2);
+
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fillStyle = gradient;
+        ctx.fill();
+
+        ctx.save();
+        ctx.fillStyle = "#050814";
+        ctx.globalAlpha = 0.18;
+        ctx.beginPath();
+        ctx.moveTo(0, 0);
+        ctx.arc(0, 0, radius, startAngle, endAngle);
+        ctx.closePath();
+        ctx.fill();
+        ctx.restore();
+
+        // option text
+        ctx.save();
+        ctx.fillStyle = "#f5f7ff";
+        ctx.font = "bold 14px system-ui";
+        ctx.textAlign = "right";
+        ctx.textBaseline = "middle";
+        const textAngle = startAngle + anglePer / 2;
+        ctx.rotate(textAngle);
+        ctx.translate(radius - 14, 0);
+        ctx.rotate(Math.PI / 2);
+        const text = options[i];
+        const maxLen = 22;
+        const displayText = text.length > maxLen ? text.slice(0, maxLen - 1) + "…" : text;
+        ctx.fillText(displayText, 0, 0);
+        ctx.restore();
+      }
+
+      // center circle
+      ctx.beginPath();
+      ctx.arc(0, 0, radius * 0.24, 0, Math.PI * 2);
+      const cg = ctx.createRadialGradient(0, 0, 0, 0, 0, radius * 0.24);
+      cg.addColorStop(0, "#050814");
+      cg.addColorStop(1, "#48e0ff");
+      ctx.fillStyle = cg;
+      ctx.fill();
+
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "rgba(5,8,20,0.98)";
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    function renderActiveWheel() {
+      renderActiveWheelNameTag();
+      renderOptionsEditor();
+      renderWheelCanvas();
+      const resultText = document.getElementById("resultText");
+      const wheel = getActiveWheel();
+      if (!wheel || !wheel.options.length) {
+        resultText.innerHTML = "等你加完選項先，可以開始出賣你嘅命運。";
+      } else {
+        resultText.innerHTML = "準備好就撳 SPIN，唔好怨之後抽中「做 Past Paper」。";
+      }
+    }
+
+    function toggleSpinButton(enabled) {
+      const btn = document.getElementById("spinBtn");
+      if (enabled) {
+        btn.classList.remove("disabled");
+      } else {
+        btn.classList.add("disabled");
+      }
+    }
+
+    // ===== Textarea sync =====
+
+    function syncOptionsFromTextarea() {
+      const textarea = document.getElementById("optionsInput");
+      const wheel = getActiveWheel();
+      if (!wheel) return;
+      const lines = textarea.value.split("\n");
+      const options = lines
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      wheel.options = options;
+      saveToLocalStorage();
+      renderOptionsEditor();
+      renderWheelCanvas();
+    }
+
+    // ===== Spin logic =====
+
+    function spinWheel() {
+      const wheel = getActiveWheel();
+      if (!wheel) {
+        showToast("你仲未有任何 wheel 喎。");
+        return;
+      }
+      if (!wheel.options.length) {
+        showToast("呢個 wheel 冇選項，你想抽空氣定係抽自己人生失敗？");
+        return;
+      }
+      if (isSpinning) return;
+
+      isSpinning = true;
+      toggleSpinButton(false);
+
+      const options = wheel.options;
+      const n = options.length;
+      const anglePer = (Math.PI * 2) / n;
+
+      // secure random final index + extra rotations
+      const randomFloat = getSecureRandom();
+      const finalIndex = Math.floor(randomFloat * n); // 0 ~ n-1 [web:22]
+      const extraSpins = 3 + Math.floor(getSecureRandom() * 3); // 3~5圈
+
+      // target: pointer at top (0 rad) selecting finalIndex
+      const targetAngle = (Math.PI * 2) * extraSpins + (Math.PI * 2) - (finalIndex + 0.5) * anglePer;
+
+      const startAngle = currentAngle % (Math.PI * 2);
+      const delta = targetAngle - startAngle;
+
+      const duration = 3200 + getSecureRandom() * 1200; // 3.2~4.4s
+      const startTime = performance.now();
+
+      function easeOutCubic(t) {
+        return 1 - Math.pow(1 - t, 3);
+      }
+
+      function animate(now) {
+        const elapsed = now - startTime;
+        const t = Math.min(1, elapsed / duration);
+        const eased = easeOutCubic(t);
+        currentAngle = startAngle + delta * eased;
+        renderWheelCanvas();
+
+        if (t < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          isSpinning = false;
+          const result = options[finalIndex];
+          const resultText = document.getElementById("resultText");
+          resultText.innerHTML = '中獎結果：<span class="result-highlight">' + result + "</span>";
+          toggleSpinButton(true);
+        }
+      }
+
+      requestAnimationFrame(animate);
+    }
+
+    // ===== Init =====
+
+    function init() {
+      loadFromLocalStorage();
+      renderWheelList();
+      renderActiveWheel();
+
+      document.getElementById("addWheelBtn").addEventListener("click", addWheel);
+      document.getElementById("optionsInput").addEventListener("input", syncOptionsFromTextarea);
+      document.getElementById("spinBtn").addEventListener("click", () => {
+        if (!document.getElementById("spinBtn").classList.contains("disabled")) {
+          spinWheel();
+        } else {
+          const wheel = getActiveWheel();
+          if (!wheel) {
+            showToast("先整個 wheel 出嚟先啦。");
+          } else {
+            showToast("個 wheel 冇選項，你叫 SPIN 點樣幫你決定人生。");
+          }
+        }
+      });
+
+      window.addEventListener("resize", () => {
+        renderWheelCanvas();
+      });
+    }
+
+    window.addEventListener("DOMContentLoaded", init);
+  </script>
+</body>
+</html>
