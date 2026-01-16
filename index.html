@@ -1029,7 +1029,8 @@
 
     // ===== Init =====
 
-function init() {
+1047
+  () {
   loadFromLocalStorage();
   renderWheelList();
   renderActiveWheel();
@@ -1044,16 +1045,17 @@ function init() {
         showToast("先整個 wheel 出嚟先啦。");
       } else {
         showToast("個 wheel 冇選項，你叫 SPIN 點樣幫你決定人生。");
+            }
       }
     });
   } 
                                                         window.addEventListener("resize", () => {
     renderWheelCanvas();
   });
-}
 
 
     window.addEventListener("DOMContentLoaded", init);
   </script>
 </body>
 </html>
+1051
