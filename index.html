@@ -1024,24 +1024,8 @@ function init() {
         showToast("個 wheel 冇選項，你叫 SPIN 點樣幫你決定人生。");
       }
     }
-  });
-
-  // 🔽 
-  (function() {
-    const optionsInput = document.getElementById('optionsInput');
-    if (!optionsInput) return;
-
-    function suppressEnterPropagation(e) {
-      if (e.key === 'Enter') {
-        e.stopPropagation();
-      }
-    }
-
-    optionsInput.addEventListener('keydown', suppressEnterPropagation);
-    optionsInput.addEventListener('keypress', suppressEnterPropagation);
-  })();
-  // 
-  window.addEventListener("resize", () => {
+  } 
+                                                        window.addEventListener("resize", () => {
     renderWheelCanvas();
   });
 }
